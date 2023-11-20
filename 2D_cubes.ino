@@ -6,7 +6,7 @@
 #include <AltSoftSerial.h>
 
 SoftwareSerial Serial4(68, 69);
-SevSeg sevseg; 
+SevSeg sevseg;
 
 void send_message();
 void receieve_message();
@@ -50,7 +50,7 @@ union Float2Byte{
   byte bytevar[4];
   } float2byte;
 
-          
+
 
 PROGMEM const float dmodel_kernel_2[40][15]  = {{ 0.07306986 , 0.21827233,  0.17082913,  0.01331836, -0.2187641 , -0.07621206,
  -0.00052413 ,-0.16438824,  0.1660233,   0.00267533, -0.20689474,  0.02476237,
@@ -134,8 +134,7 @@ PROGMEM const float dmodel_kernel_2[40][15]  = {{ 0.07306986 , 0.21827233,  0.17
  -0.03399108 , 0.14007546, -0.15142705, -0.00389115,  0.04915684 , 0.03570704,
   0.07829898 , 0.06922383,  0.03922411}};
 
-   
- PROGMEM const float dmodel_kernel_1[40][40]  = {{0.40466344,-0.1524832,0.30265495,0.12730531,0.03920864,0.12515596,0.09276772,0.039528113,0.41134217,0.14012508,-0.13232224,0.11303754,0.01618393,-0.07626962,0.32201615,0.13135746,-0.30167696,0.122185044,-0.26558337,-0.67049253,0.32734928,-0.23049644,0.06983475,-0.38751602,-0.56668824,0.08803036,-0.030478187,-0.15782546,0.45159835,-0.25189188,0.33667323,-0.065458834,0.3824287,0.2108373,0.004258222,0.24007133,-0.3359964,-0.30582565,-0.13964175,-0.18160477},
+PROGMEM const float dmodel_kernel_1[40][40]  = {{0.40466344,-0.1524832,0.30265495,0.12730531,0.03920864,0.12515596,0.09276772,0.039528113,0.41134217,0.14012508,-0.13232224,0.11303754,0.01618393,-0.07626962,0.32201615,0.13135746,-0.30167696,0.122185044,-0.26558337,-0.67049253,0.32734928,-0.23049644,0.06983475,-0.38751602,-0.56668824,0.08803036,-0.030478187,-0.15782546,0.45159835,-0.25189188,0.33667323,-0.065458834,0.3824287,0.2108373,0.004258222,0.24007133,-0.3359964,-0.30582565,-0.13964175,-0.18160477},
 {-0.35522217,0.30502257,-0.4497363,-0.17436954,0.14600468,0.025290877,0.35952455,0.2680586,-0.47546318,0.16038938,0.032546975,-0.042558476,0.2770738,0.2371357,-0.07277929,-0.058026228,-0.1653207,-0.08097052,-0.019143881,0.19961129,-0.12699,-0.030253489,0.429997,0.045018744,0.28068078,-0.042044938,0.17891015,0.38826138,-0.054445677,-0.24658816,0.06841017,-0.14755537,-0.5653615,-0.28727865,0.44546625,-0.33040696,-0.12522483,0.1440662,0.1929966,0.22998816},
 {0.12536837,0.076972306,-0.11400381,-0.2912062,-0.21201523,-0.2871257,0.28075063,0.13491856,0.3254421,-0.09261201,-0.093120575,-0.31278664,-0.3118058,0.30616355,-0.062182274,-0.17442311,-0.13991113,0.1511508,0.06425781,-0.20108195,-0.15046276,-0.29400513,-0.1521019,-0.03035538,-0.25205922,0.21070659,0.035829347,-0.2306654,0.29846868,0.04486517,-0.32395136,-0.01532228,-0.032310434,-0.013459541,-0.14685644,0.01422668,0.022937039,0.0057625338,0.14366284,-0.14287008},
 {-0.042019837,0.09705145,-0.18936859,0.109265774,0.190447,0.007758981,-0.32168776,0.18043415,0.19293311,-0.3041647,0.40253273,-0.41423506,-0.006840563,0.14093794,0.008468442,-0.2456778,-0.42878482,0.24689706,0.33206278,-0.027697956,0.39320445,0.10550196,-0.13215521,-0.10492936,0.022467604,-0.12619227,0.04094957,-0.6229197,-0.13782611,0.010148483,-0.05494945,-0.02629327,-0.11698113,-0.122431055,-0.28202415,-0.24403717,0.020389766,0.20206606,0.04306353,-0.07296749},
@@ -175,8 +174,6 @@ PROGMEM const float dmodel_kernel_2[40][15]  = {{ 0.07306986 , 0.21827233,  0.17
 {0.3198465,-0.49216133,0.06299705,-0.22681727,-0.08985323,-0.15943624,0.1276358,-0.5293123,-0.16537653,-0.17396004,-0.040629458,0.13508902,-0.13172701,0.44631934,-0.085367374,0.10087848,0.094475895,-0.14117736,-0.3417311,-0.08372872,0.26534876,0.052266758,-0.49893463,-0.35486144,0.18635269,0.15286288,0.19205147,0.41079947,-0.06662206,0.3362622,0.16508093,-0.31534132,-0.11919313,-0.15489472,-0.19296803,0.3323613,-0.023089819,0.26010144,0.21653844,-0.28811592},
 {0.25771362,-0.36491987,0.13872276,-0.15637529,-0.25992912,-0.2943527,-0.19336165,-0.21934704,0.3349574,-0.043827254,0.19319172,0.07349608,-0.053660586,-0.17679828,0.27260116,0.061522607,-0.11062644,0.06292437,0.36523828,0.053741846,0.24708422,-0.14030638,0.11278413,-0.17438845,0.12255031,0.065219365,-0.15947916,0.08314782,0.2699413,0.14900963,0.055218603,0.1558091,0.30749267,-0.29680157,-0.13939756,0.36758378,0.23022681,0.14577647,-0.034725044,-0.032127712},
 {0.062180664,-0.14785331,0.21927,-0.11337489,0.2705563,-0.30638772,0.2712256,0.023623824,-0.33474028,0.3161694,-0.07991426,-0.12711729,0.025489321,-0.002886749,-0.3885626,-0.17745408,-0.1946237,-0.22656693,-0.3409366,0.3095845,-0.0030458963,0.3586998,0.18545927,0.07270198,-0.5576382,-0.2968756,0.18174666,-0.17202929,-0.06500339,0.2474355,-0.3526304,-0.08982257,-0.25814882,0.1437481,0.2554383,-0.064101376,0.3613879,-0.046657693,0.0798859,0.2757796}};
-
-
 
 PROGMEM const float perceive_kernel_self[15][40] = {{0.00472426,  0.11226495,  0.01179993, -0.05598756, -0.02410705, -0.02739789,
  -0.06830911, -0.05634673,  0.09649715,  0.08619135,  0.06939911, -0.06247471,
@@ -563,7 +560,6 @@ PROGMEM const float perceive_kernel_left[15][40] = {{-0.09232815, -0.1271057 ,  
   0.10785557, -0.00508653, -0.1060776 , -0.01802001,  0.11761112, -0.08194532,
   0.14527129, -0.08831184, -0.03849689, -0.02012374}};
 
-  
 PROGMEM const float perceive_kernel_right[15][40] = {{ 0.07294947, -0.15640315,  0.12708052,  0.20147315,  0.05561217,  0.17506972,
   0.1063878 ,  0.13003878, -0.05871702, -0.12701169,  0.08635787,  0.07773468,
  -0.00910933,  0.08118835,  0.07160105,  0.07035095,  0.0277718 ,  0.08656744,
@@ -662,8 +658,6 @@ PROGMEM const float perceive_kernel_right[15][40] = {{ 0.07294947, -0.15640315, 
  -0.11314277,  0.05898982, -0.00731682,  0.07329187,  0.02501443, -0.4707022,
   0.27610326, -0.05646471,  0.01901012, -0.07691216}};
 
-
-
 PROGMEM const float dmodel_bias_1[40]  = {-0.0010746567,0.024285413,0.031801973,0.009014151,0.063084364,0.05269001,0.0034946036,0.024651857,-0.01832779,-0.027496472,0.0038995072,-0.0049361414,-0.0039025752,0.00017114611,0.014918175,0.00023670198,0.077505626,-0.024134863,0.046099823,0.08965501,-0.029326087,-0.024776006,0.013381814,0.0044070734,0.060039703,-0.04467007,0.005474059,0.05772726,-0.011100539,-0.01332115,0.017239654,0.047609802,0.05851343,0.09509844,0.036784247,-0.026534252,-0.019113211,0.02274208,0.003912732,-0.0057317107};
 PROGMEM const float dmodel_bias_2[15]  = {0.02183328,-0.044273492,-0.012110343,-0.004307126,0.0030345086,0.010601306,0.0007391676,-0.008779281,0.020210965,0.011785629,0.0064377924,-0.012795383,0.011844801,-0.017908162,0.024666786};
 PROGMEM const float perceive_bias[40] = {0.030537171,0.04179521,-0.034147393,-0.012620558,0.0041902284,0.030705025,0.028250286,-0.0025205151,0.017727124,0.01005783,0.041590728,-0.0114766965,0.03215437,0.038724948,0.05805855,-0.0074059837,-0.0053902194,0.01935422,-0.08663503,0.039916087,0.0437605,0.05126975,0.029452205,0.050751057,-0.0012684441,-0.015251998,0.047365025,0.0081449,0.02040422,0.012763868,-0.028508976,0.0230172,-0.023475986,0.03449037,0.051923096,-0.011913723,-0.0069342074,0.024313584,-0.0033058159,0.05360153};
@@ -688,41 +682,36 @@ void setup() {
         pinMode(17, INPUT_PULLUP);
         pinMode(15, INPUT_PULLUP);
         pinMode(68, INPUT_PULLUP);
- 
+
 
         byte numDigits = 1;
         byte digitPins[] = {};
         byte segmentPins[] = {7, 6, 5, 13, 12, 9, 8, 4};
         bool resistorsOnSegments = true;
 
-        byte hardwareConfig = COMMON_CATHODE; 
+        byte hardwareConfig = COMMON_CATHODE;
         sevseg.begin(hardwareConfig, numDigits, digitPins, segmentPins, resistorsOnSegments);
         sevseg.setBrightness(90);
-        randomSeed(analogRead(23)); 
-        
-        
-  
-     
-
+        randomSeed(analogRead(23));
 }
 
-void loop() { 
+void loop() {
 
-  delay(random(500)); 
+  delay(random(500));
   while(update_num<13){
   send_message();
-  receieve_message();      
+  receieve_message();
   update_message();
   }
  }
-  
+
 
 void send_message()
 {
-  
+
 
   ////////////////// send message!!!! //////////////////////////////////
-  if(message_process_completed == 0){ //only send one message at a time - wait for the neural network to update 
+  if(message_process_completed == 0){ //only send one message at a time - wait for the neural network to update
     //before sending another one
     message_process_completed = 1; //reset trigger
 
@@ -732,9 +721,9 @@ void send_message()
     Serial2.write(header);
     Serial3.write(header);
     Serial4.write(header);
-      
 
-    
+
+
     int check_num = 0;
     for (int k = 0; k < amount_of_cell_info; k++){
     // send the current cell state to each of its neighbours
@@ -742,22 +731,22 @@ void send_message()
       if(cell_state[k]>1.27){cell_state[k] =1.27;}
       if(cell_state[k]<-1.27){cell_state[k] =-1.27;}
       int x = cell_state[k]*scale_factor + offset;
-      
+
       check_num = check_num + x;
 
       Serial1.write(x);
       Serial2.write(x);
       Serial3.write(x);
       Serial4.write(x);
-        
-      
+
+
     }
       check_num = check_num/amount_of_cell_info;
       Serial1.write(check_num);
       Serial2.write(check_num);
       Serial3.write(check_num);
       Serial4.write(check_num);
-    
+
 
 
 
@@ -767,7 +756,7 @@ void send_message()
 
 void receieve_message()
 {
-  
+
   top_read = receive_neighbour_123(Serial2,  ReadFromTopMessage, top_read);
 
   right_read = receive_neighbour_123(Serial1,  ReadFromRightMessage, right_read);
@@ -797,25 +786,25 @@ int receive_neighbour_123(HardwareSerial& neighbour_serial, float* message, int 
     return flag;
   }
   if(flag<0){
-    
+
     if(neighbour_serial.available()>0){
 
-      int value = (neighbour_serial.read()); 
+      int value = (neighbour_serial.read());
       if(value == 245){
-        flag = 0;  
+        flag = 0;
       }
     }
   }
   else{
     while(neighbour_serial.available()>0 and flag<15){
-      
-      int temp = (neighbour_serial.read()); 
+
+      int temp = (neighbour_serial.read());
 
       message[flag] = (float(temp)-float(offset))/float(scale_factor);
       flag = flag +1;
-      
+
     }
-    
+
   }
   return flag;
 }
@@ -839,25 +828,25 @@ int receive_neighbour_4(SoftwareSerial& neighbour_serial, float* message, int fl
     return flag;
   }
   if(flag<0){
-    
+
     if(neighbour_serial.available()>0){
 
-      int value = (neighbour_serial.read()); 
+      int value = (neighbour_serial.read());
       if(value == 245){
-        flag = 0;  
+        flag = 0;
       }
     }
   }
   else{
     while(neighbour_serial.available()>0 and flag<15){
-      
-      int temp = (neighbour_serial.read()); 
+
+      int temp = (neighbour_serial.read());
 
       message[flag] = (float(temp)-float(offset))/float(scale_factor);
       flag = flag +1;
-      
+
     }
-    
+
   }
   return flag;
 }
@@ -872,12 +861,12 @@ void update_message()
   int bottom_message = 0;
   int left_message = 0;
   int right_message = 0;
-  
-  if(top_read < 15){top_message = 1;} 
-  if(bottom_read < 15){bottom_message = 1;} 
-  if(left_read < 15){left_message = 1;} 
-  if(right_read < 15){right_message = 1;} 
-   
+
+  if(top_read < 15){top_message = 1;}
+  if(bottom_read < 15){bottom_message = 1;}
+  if(left_read < 15){left_message = 1;}
+  if(right_read < 15){right_message = 1;}
+
   int messages_recieved = top_message + right_message + left_message + bottom_message;
 
 
@@ -887,16 +876,16 @@ void update_message()
     prev = now;
 
     if(random_num>-1){
-    
+
     Serial.println("check");
     Serial.println(check);
     Serial.println("prev");
     Serial.println(prev);
-    
 
-    // update the cell state part... 
+
+    // update the cell state part...
     float sumA1[neural_network_parameter] = {0};
-  
+
 
     for(int j = 0 ; j < neural_network_parameter ; j++ ) {
       for(int i = 0 ; i < amount_of_cell_info ; i++ ) {
@@ -912,7 +901,7 @@ void update_message()
       for(int i = 0 ; i < amount_of_cell_info ; i++ ) {
           int k = i*neural_network_parameter + j;
           sumA1[j] += (pgm_read_float_near(&perceive_kernel_bottom[0][0] + k) *  ReadFromBottomMessage[i]) ; }}
-     
+
 
     for(int j = 0 ; j < neural_network_parameter ; j++ ) {
       for(int i = 0 ; i < amount_of_cell_info ; i++ ) {
@@ -925,20 +914,20 @@ void update_message()
           sumA1[j] += (pgm_read_float_near(&perceive_kernel_left[0][0] + k) *  ReadFromLeftMessage[i]) ; }}
 
     for(int j = 0 ; j < neural_network_parameter ; j++ ) {sumA1[j] += (pgm_read_float_near(&perceive_bias[0] + j));}
-    
+
     for(int j = 0 ; j < neural_network_parameter ; j++ ) {
       if(sumA1[j]<0){
         sumA1[j]=0;
-        }  
+        }
       }
 
 
     float sumB[neural_network_parameter] = {0};
-    
-    for(int j = 0 ; j < neural_network_parameter ; j++ ) {        
+
+    for(int j = 0 ; j < neural_network_parameter ; j++ ) {
       for(int i = 0 ; i < neural_network_parameter; i++ ) {
         int k = i*neural_network_parameter +j;
-        sumB[j] += sumA1[i] *(pgm_read_float_near(&dmodel_kernel_1[0][0] + k));    
+        sumB[j] += sumA1[i] *(pgm_read_float_near(&dmodel_kernel_1[0][0] + k));
       }
     }
 
@@ -948,21 +937,21 @@ void update_message()
         sumB[j] = 0;
       }
     }
-    
-  
+
+
   float sumC[amount_of_cell_info] = {0};
 
-  for(int j = 0 ; j< amount_of_cell_info ; j++ ) {        
+  for(int j = 0 ; j< amount_of_cell_info ; j++ ) {
     for(int i = 0 ; i < neural_network_parameter; i++ ) {
       int k = i*amount_of_cell_info +j;
       sumC[j] += sumB[i] *(pgm_read_float_near(&dmodel_kernel_2[0][0] + k));
     }
   }
-  
-  
+
+
 
   for(int j = 0 ; j < amount_of_cell_info ; j++ ) {
-    sumC[j] += (pgm_read_float_near(&dmodel_bias_2[0] + j));  
+    sumC[j] += (pgm_read_float_near(&dmodel_bias_2[0] + j));
     }
 
 
@@ -973,7 +962,7 @@ void update_message()
     Serial.print(ReadFromRightMessage[j]);
     Serial.print(",");
     }
-    
+
   Serial.println(" ");
 
   Serial.print("E");
@@ -982,7 +971,7 @@ void update_message()
     Serial.print(ReadFromLeftMessage[j]);
     Serial.print(",");
     }
-    
+
   Serial.println(" ");
 
 
@@ -992,7 +981,7 @@ void update_message()
     Serial.print(ReadFromTopMessage[j]);
     Serial.print(",");
     }
-    
+
   Serial.println(" ");
 
   Serial.print("S");
@@ -1001,10 +990,10 @@ void update_message()
     Serial.print(ReadFromBottomMessage[j]);
     Serial.print(",");
     }
-    
+
   Serial.println(" ");
 
-  
+
   Serial.print("CELL");
   Serial.print(",");
   for(int j = 0 ; j < amount_of_cell_info ; j++ ) {
@@ -1012,7 +1001,7 @@ void update_message()
     Serial.print(cell_state[j]);
     Serial.print(",");
     }
-    
+
   Serial.println(" ");
   }
 
@@ -1024,7 +1013,7 @@ void update_message()
     // we can also print it for debugging...
 
     if(cell_state[i]>max_num){
-      max_num =cell_state[i]; 
+      max_num =cell_state[i];
       max_position=i-5;
     }
   }
@@ -1054,7 +1043,7 @@ void update_message()
   if(max_position==8){sevseg.setNumber(8);}
   if(max_position==9){sevseg.setNumber(9);}
 
-  
+
   sevseg.refreshDisplay();
 
   // the update process is now completed - update each of the necessary parameters / reset the triggers...
@@ -1076,8 +1065,8 @@ void update_message()
    ReadFromBottomMessage[15] = {0};
 
   update_num = update_num +1;
-  
+
 
   }
 
-} 
+}
