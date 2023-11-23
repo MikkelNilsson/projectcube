@@ -1,7 +1,5 @@
 #include <stdint.h>
 #include "SevSeg.h"
-
-
 #include <SoftwareSerial.h>
 #include <AltSoftSerial.h>
 
@@ -44,13 +42,10 @@ int left_read = -1;
 int top_read =-1;
 int ready_to_update = -1;
 
-
 union Float2Byte{
   float floatvar;
   byte bytevar[4];
   } float2byte;
-
-
 
 PROGMEM const float dmodel_kernel_2[40][15]  = {{ 0.07306986 , 0.21827233,  0.17082913,  0.01331836, -0.2187641 , -0.07621206,
  -0.00052413 ,-0.16438824,  0.1660233,   0.00267533, -0.20689474,  0.02476237,
@@ -663,53 +658,47 @@ PROGMEM const float dmodel_bias_2[15]  = {0.02183328,-0.044273492,-0.012110343,-
 PROGMEM const float perceive_bias[40] = {0.030537171,0.04179521,-0.034147393,-0.012620558,0.0041902284,0.030705025,0.028250286,-0.0025205151,0.017727124,0.01005783,0.041590728,-0.0114766965,0.03215437,0.038724948,0.05805855,-0.0074059837,-0.0053902194,0.01935422,-0.08663503,0.039916087,0.0437605,0.05126975,0.029452205,0.050751057,-0.0012684441,-0.015251998,0.047365025,0.0081449,0.02040422,0.012763868,-0.028508976,0.0230172,-0.023475986,0.03449037,0.051923096,-0.011913723,-0.0069342074,0.024313584,-0.0033058159,0.05360153};
 
 void setup() {
-        Serial.begin(9600);
-        Serial1.begin(57600); //Left neighbour
-        Serial2.begin(57600);// right neighbour
-        Serial3.begin(57600); // top neighbour
+  Serial.begin(9600);
+  Serial1.begin(57600); //Left neighbour
+  Serial2.begin(57600);// right neighbour
+  Serial3.begin(57600); // top neighbour
+  Serial4.begin(57600); // bottom neighbour
 
-        Serial4.begin(57600); // bottom neighbour
+  pinMode(11, OUTPUT);
+  pinMode(10, OUTPUT);
+  pinMode(3, OUTPUT);
+  pinMode(A8, OUTPUT);
+  pinMode(A9, OUTPUT);
+  pinMode(A10, OUTPUT);
+  pinMode(A11, OUTPUT);
 
-        pinMode(11, OUTPUT);
-        pinMode(10, OUTPUT);
-        pinMode(3, OUTPUT);
-        pinMode(A8, OUTPUT);
-        pinMode(A9, OUTPUT);
-        pinMode(A10, OUTPUT);
-        pinMode(A11, OUTPUT);
+  pinMode(19, INPUT_PULLUP);
+  pinMode(17, INPUT_PULLUP);
+  pinMode(15, INPUT_PULLUP);
+  pinMode(68, INPUT_PULLUP);
 
-        pinMode(19, INPUT_PULLUP);
-        pinMode(17, INPUT_PULLUP);
-        pinMode(15, INPUT_PULLUP);
-        pinMode(68, INPUT_PULLUP);
+  byte numDigits = 1;
+  byte digitPins[] = {};
+  byte segmentPins[] = {7, 6, 5, 13, 12, 9, 8, 4};
+  bool resistorsOnSegments = true;
 
-
-        byte numDigits = 1;
-        byte digitPins[] = {};
-        byte segmentPins[] = {7, 6, 5, 13, 12, 9, 8, 4};
-        bool resistorsOnSegments = true;
-
-        byte hardwareConfig = COMMON_CATHODE;
-        sevseg.begin(hardwareConfig, numDigits, digitPins, segmentPins, resistorsOnSegments);
-        sevseg.setBrightness(90);
-        randomSeed(analogRead(23));
+  byte hardwareConfig = COMMON_CATHODE;
+  sevseg.begin(hardwareConfig, numDigits, digitPins, segmentPins, resistorsOnSegments);
+  sevseg.setBrightness(90);
+  randomSeed(analogRead(23));
 }
 
 void loop() {
-
   delay(random(500));
   while(update_num<13){
-  send_message();
-  receieve_message();
-  update_message();
+    send_message();
+    receieve_message();
+    update_message();
   }
- }
-
+}
 
 void send_message()
 {
-
-
   ////////////////// send message!!!! //////////////////////////////////
   if(message_process_completed == 0){ //only send one message at a time - wait for the neural network to update
     //before sending another one
@@ -722,12 +711,10 @@ void send_message()
     Serial3.write(header);
     Serial4.write(header);
 
-
-
     int check_num = 0;
     for (int k = 0; k < amount_of_cell_info; k++){
-    // send the current cell state to each of its neighbours
-       // convert into sendable format (i.e. cell_state of -2 --> 0 cells state of +2 --> 255)
+      // send the current cell state to each of its neighbours
+      // convert into sendable format (i.e. cell_state of -2 --> 0 cells state of +2 --> 255)
       if(cell_state[k]>1.27){cell_state[k] =1.27;}
       if(cell_state[k]<-1.27){cell_state[k] =-1.27;}
       int x = cell_state[k]*scale_factor + offset;
@@ -738,8 +725,6 @@ void send_message()
       Serial2.write(x);
       Serial3.write(x);
       Serial4.write(x);
-
-
     }
       check_num = check_num/amount_of_cell_info;
       Serial1.write(check_num);
@@ -747,70 +732,29 @@ void send_message()
       Serial3.write(check_num);
       Serial4.write(check_num);
 
-
-
-
     // set message sent trigger - actually this might be obsolete now ...
     message_sent = 1;}
 }
 
 void receieve_message()
 {
-
   top_read = receive_neighbour_123(Serial2,  ReadFromTopMessage, top_read);
-
   right_read = receive_neighbour_123(Serial1,  ReadFromRightMessage, right_read);
-
   left_read = receive_neighbour_123(Serial3,  ReadFromLeftMessage, left_read);
-
   bottom_read = receive_neighbour_4(Serial4, ReadFromBottomMessage, bottom_read);
-
 }
 
 int receive_neighbour_123(HardwareSerial& neighbour_serial, float* message, int flag)
 {
-  if(flag>14){
-    if(flag==15){
-      if(neighbour_serial.available()>0){
-        int temp = (neighbour_serial.read());
-        float recieved_sum = ((float(temp)-float(offset))/float(scale_factor));
-        float check_sum = 0;
-        for(int k=0;k<15;k++){
-          check_sum = check_sum + message[k];
-        }
-        float diff = abs(check_sum/float(15) - recieved_sum);
-
-        flag = flag +1;
-      }
-    }
-    return flag;
-  }
-  if(flag<0){
-
-    if(neighbour_serial.available()>0){
-
-      int value = (neighbour_serial.read());
-      if(value == 245){
-        flag = 0;
-      }
-    }
-  }
-  else{
-    while(neighbour_serial.available()>0 and flag<15){
-
-      int temp = (neighbour_serial.read());
-
-      message[flag] = (float(temp)-float(offset))/float(scale_factor);
-      flag = flag +1;
-
-    }
-
-  }
-  return flag;
+  calc_neighbour(neighbour_serial, message, flag);
 }
 
 int receive_neighbour_4(SoftwareSerial& neighbour_serial, float* message, int flag)
 {
+  calc_neighbour(neighbour_serial, message, flag);
+}
+
+int calc_neighbour(Serial& neighbour_serial, float* message, int flag) {
   if(flag>14){
     if(flag==15){
       if(neighbour_serial.available()>0){
@@ -822,15 +766,12 @@ int receive_neighbour_4(SoftwareSerial& neighbour_serial, float* message, int fl
         }
         flag = flag +1;
         float diff = abs(check_sum/float(15) - recieved_sum);
-
       }
     }
     return flag;
   }
   if(flag<0){
-
     if(neighbour_serial.available()>0){
-
       int value = (neighbour_serial.read());
       if(value == 245){
         flag = 0;
@@ -839,17 +780,14 @@ int receive_neighbour_4(SoftwareSerial& neighbour_serial, float* message, int fl
   }
   else{
     while(neighbour_serial.available()>0 and flag<15){
-
       int temp = (neighbour_serial.read());
-
       message[flag] = (float(temp)-float(offset))/float(scale_factor);
       flag = flag +1;
-
     }
-
   }
   return flag;
 }
+
 void update_message()
 {
 ////////////////////////// Update message ///////////////////////////////////////////
@@ -857,35 +795,16 @@ void update_message()
   now = millis();
   check = now - prev;
 
-  int top_message = 0;
-  int bottom_message = 0;
-  int left_message = 0;
-  int right_message = 0;
-
-  if(top_read < 15){top_message = 1;}
-  if(bottom_read < 15){bottom_message = 1;}
-  if(left_read < 15){left_message = 1;}
-  if(right_read < 15){right_message = 1;}
-
-  int messages_recieved = top_message + right_message + left_message + bottom_message;
-
-
   if(check>math_trigger){
-    int random_num = random(10);
-    Serial.println(random_num);
     prev = now;
-
-    if(random_num>-1){
 
     Serial.println("check");
     Serial.println(check);
     Serial.println("prev");
     Serial.println(prev);
 
-
     // update the cell state part...
     float sumA1[neural_network_parameter] = {0};
-
 
     for(int j = 0 ; j < neural_network_parameter ; j++ ) {
       for(int i = 0 ; i < amount_of_cell_info ; i++ ) {
@@ -902,7 +821,6 @@ void update_message()
           int k = i*neural_network_parameter + j;
           sumA1[j] += (pgm_read_float_near(&perceive_kernel_bottom[0][0] + k) *  ReadFromBottomMessage[i]) ; }}
 
-
     for(int j = 0 ; j < neural_network_parameter ; j++ ) {
       for(int i = 0 ; i < amount_of_cell_info ; i++ ) {
           int k = i*neural_network_parameter + j;
@@ -913,14 +831,15 @@ void update_message()
           int k = i*neural_network_parameter + j;
           sumA1[j] += (pgm_read_float_near(&perceive_kernel_left[0][0] + k) *  ReadFromLeftMessage[i]) ; }}
 
-    for(int j = 0 ; j < neural_network_parameter ; j++ ) {sumA1[j] += (pgm_read_float_near(&perceive_bias[0] + j));}
+    for(int j = 0 ; j < neural_network_parameter ; j++ ) {
+      sumA1[j] += (pgm_read_float_near(&perceive_bias[0] + j));
+    }
 
     for(int j = 0 ; j < neural_network_parameter ; j++ ) {
       if(sumA1[j]<0){
         sumA1[j]=0;
         }
       }
-
 
     float sumB[neural_network_parameter] = {0};
 
@@ -938,135 +857,111 @@ void update_message()
       }
     }
 
+    float sumC[amount_of_cell_info] = {0};
 
-  float sumC[amount_of_cell_info] = {0};
-
-  for(int j = 0 ; j< amount_of_cell_info ; j++ ) {
-    for(int i = 0 ; i < neural_network_parameter; i++ ) {
-      int k = i*amount_of_cell_info +j;
-      sumC[j] += sumB[i] *(pgm_read_float_near(&dmodel_kernel_2[0][0] + k));
+    for(int j = 0 ; j< amount_of_cell_info ; j++ ) {
+      for(int i = 0 ; i < neural_network_parameter; i++ ) {
+        int k = i*amount_of_cell_info +j;
+        sumC[j] += sumB[i] *(pgm_read_float_near(&dmodel_kernel_2[0][0] + k));
+      }
     }
+
+    for(int j = 0 ; j < amount_of_cell_info ; j++ ) {
+      sumC[j] += (pgm_read_float_near(&dmodel_bias_2[0] + j));
+      }
+
+    Serial.print("W");
+    Serial.print(",");
+    for(int j = 0 ; j < amount_of_cell_info ; j++ ) {
+      Serial.print(ReadFromRightMessage[j]);
+      Serial.print(",");
+      }
+    Serial.println(" ");
+
+    Serial.print("E");
+    Serial.print(",");
+    for(int j = 0 ; j < amount_of_cell_info ; j++ ) {
+      Serial.print(ReadFromLeftMessage[j]);
+      Serial.print(",");
+      }
+    Serial.println(" ");
+
+    Serial.print("N");
+    Serial.print(",");
+    for(int j = 0 ; j < amount_of_cell_info ; j++ ) {
+      Serial.print(ReadFromTopMessage[j]);
+      Serial.print(",");
+      }
+    Serial.println(" ");
+
+    Serial.print("S");
+    Serial.print(",");
+    for(int j = 0 ; j < amount_of_cell_info ; j++ ) {
+      Serial.print(ReadFromBottomMessage[j]);
+      Serial.print(",");
+      }
+    Serial.println(" ");
+
+    Serial.print("CELL");
+    Serial.print(",");
+    for(int j = 0 ; j < amount_of_cell_info ; j++ ) {
+      cell_state[j] += sumC[j];
+      Serial.print(cell_state[j]);
+      Serial.print(",");
+      }
+
+    Serial.println(" ");
+
+    // now we find out which number the cell thinks it is...
+    // looks for the position of the maximum number of the last 10 digits..
+    float max_num = 0;
+    int max_position = -1;
+    for(int i=5; i<amount_of_cell_info; i++){
+      // we can also print it for debugging...
+
+      if(cell_state[i]>max_num){
+        max_num =cell_state[i];
+        max_position=i-5;
+      }
+    }
+
+    // set the light colour accordingly...
+    if(max_position==0){analogWrite(red_light_pin, 20); analogWrite(green_light_pin,20); analogWrite(blue_light_pin, 20);sevseg.setNumber(0);} // white
+    if(max_position==1){analogWrite(red_light_pin, 0); analogWrite(green_light_pin,20); analogWrite(blue_light_pin, 0);sevseg.setNumber(1);} //green
+    if(max_position==2){analogWrite(red_light_pin, 0); analogWrite(green_light_pin,0); analogWrite(blue_light_pin, 30);sevseg.setNumber(2);} //blue
+    if(max_position==3){analogWrite(red_light_pin, 70); analogWrite(green_light_pin,25); analogWrite(blue_light_pin, 0);sevseg.setNumber(3);} //orange
+    if(max_position==4){analogWrite(red_light_pin, 5); analogWrite(green_light_pin,50); analogWrite(blue_light_pin, 30);sevseg.setNumber(4);} //aquamarine
+    if(max_position==5){analogWrite(red_light_pin, 40); analogWrite(green_light_pin,12); analogWrite(blue_light_pin, 60);sevseg.setNumber(5);} //purple
+    if(max_position==6){analogWrite(red_light_pin, 50); analogWrite(green_light_pin,50); analogWrite(blue_light_pin, 0);sevseg.setNumber(6);} //yellow
+    if(max_position==7){analogWrite(red_light_pin, 55); analogWrite(green_light_pin,0); analogWrite(blue_light_pin, 0);sevseg.setNumber(7);} //red
+    if(max_position==8){analogWrite(red_light_pin, 75); analogWrite(green_light_pin,25); analogWrite(blue_light_pin, 30);sevseg.setNumber(8);} //pink
+    if(max_position==9){analogWrite(red_light_pin, 25); analogWrite(green_light_pin,15); analogWrite(blue_light_pin, 15);sevseg.setNumber(9);}
+
+    if(max_position==0){sevseg.setNumber(0);}
+    if(max_position==1){sevseg.setNumber(1);}
+    if(max_position==2){sevseg.setNumber(2);}
+    if(max_position==3){sevseg.setNumber(3);}
+    if(max_position==4){sevseg.setNumber(4);}
+    if(max_position==5){sevseg.setNumber(5);}
+    if(max_position==6){sevseg.setNumber(6);}
+    if(max_position==7){sevseg.setNumber(7);}
+    if(max_position==8){sevseg.setNumber(8);}
+    if(max_position==9){sevseg.setNumber(9);}
+
+    sevseg.refreshDisplay();
+
+    // the update process is now completed - update each of the necessary parameters / reset the triggers...
+    message_process_completed = 0;
+    bottom_read = -1;
+    top_read = -1;
+    left_read = -1;
+    right_read = -1;
+
+    ReadFromRightMessage[15] = {0};
+    ReadFromLeftMessage[15] = {0};
+    ReadFromTopMessage[15] = {0};
+    ReadFromBottomMessage[15] = {0};
+
+    update_num = update_num +1;
   }
-
-
-
-  for(int j = 0 ; j < amount_of_cell_info ; j++ ) {
-    sumC[j] += (pgm_read_float_near(&dmodel_bias_2[0] + j));
-    }
-
-
-
-  Serial.print("W");
-  Serial.print(",");
-  for(int j = 0 ; j < amount_of_cell_info ; j++ ) {
-    Serial.print(ReadFromRightMessage[j]);
-    Serial.print(",");
-    }
-
-  Serial.println(" ");
-
-  Serial.print("E");
-  Serial.print(",");
-  for(int j = 0 ; j < amount_of_cell_info ; j++ ) {
-    Serial.print(ReadFromLeftMessage[j]);
-    Serial.print(",");
-    }
-
-  Serial.println(" ");
-
-
-  Serial.print("N");
-  Serial.print(",");
-  for(int j = 0 ; j < amount_of_cell_info ; j++ ) {
-    Serial.print(ReadFromTopMessage[j]);
-    Serial.print(",");
-    }
-
-  Serial.println(" ");
-
-  Serial.print("S");
-  Serial.print(",");
-  for(int j = 0 ; j < amount_of_cell_info ; j++ ) {
-    Serial.print(ReadFromBottomMessage[j]);
-    Serial.print(",");
-    }
-
-  Serial.println(" ");
-
-
-  Serial.print("CELL");
-  Serial.print(",");
-  for(int j = 0 ; j < amount_of_cell_info ; j++ ) {
-    cell_state[j] += sumC[j];
-    Serial.print(cell_state[j]);
-    Serial.print(",");
-    }
-
-  Serial.println(" ");
-  }
-
-  // now we find out which number the cell thinks it is...
-  // looks for the position of the maximum number of the last 10 digits..
-  float max_num = 0;
-  int max_position = -1;
-  for(int i=5; i<amount_of_cell_info; i++){
-    // we can also print it for debugging...
-
-    if(cell_state[i]>max_num){
-      max_num =cell_state[i];
-      max_position=i-5;
-    }
-  }
-
-  // set the light colour accordingly...
-
-  if(max_position==7){analogWrite(red_light_pin, 55); analogWrite(green_light_pin,0); analogWrite(blue_light_pin, 0);sevseg.setNumber(7);} //red
-  if(max_position==1){analogWrite(red_light_pin, 0); analogWrite(green_light_pin,20); analogWrite(blue_light_pin, 0);sevseg.setNumber(1);} //green
-  if(max_position==2){analogWrite(red_light_pin, 0); analogWrite(green_light_pin,0); analogWrite(blue_light_pin, 30);sevseg.setNumber(2);} //blue
-  if(max_position==3){analogWrite(red_light_pin, 70); analogWrite(green_light_pin,25); analogWrite(blue_light_pin, 0);sevseg.setNumber(3);} //orange
-  if(max_position==4){analogWrite(red_light_pin, 5); analogWrite(green_light_pin,50); analogWrite(blue_light_pin, 30);sevseg.setNumber(4);} //aquamarine
-  if(max_position==5){analogWrite(red_light_pin, 40); analogWrite(green_light_pin,12); analogWrite(blue_light_pin, 60);sevseg.setNumber(5);} //purple
-  if(max_position==6){analogWrite(red_light_pin, 50); analogWrite(green_light_pin,50); analogWrite(blue_light_pin, 0);sevseg.setNumber(6);} //yellow
-  if(max_position==0){analogWrite(red_light_pin, 20); analogWrite(green_light_pin,20); analogWrite(blue_light_pin, 20);sevseg.setNumber(0);} // white
-  if(max_position==8){analogWrite(red_light_pin, 75); analogWrite(green_light_pin,25); analogWrite(blue_light_pin, 30);sevseg.setNumber(8);} //pink
-  if(max_position==9){analogWrite(red_light_pin, 25); analogWrite(green_light_pin,15); analogWrite(blue_light_pin, 15);sevseg.setNumber(9);}
-
-
-  if(max_position==7){sevseg.setNumber(7);}
-  if(max_position==0){sevseg.setNumber(0);}
-  if(max_position==1){sevseg.setNumber(1);}
-  if(max_position==2){sevseg.setNumber(2);}
-  if(max_position==3){sevseg.setNumber(3);}
-  if(max_position==4){sevseg.setNumber(4);}
-  if(max_position==5){sevseg.setNumber(5);}
-  if(max_position==6){sevseg.setNumber(6);}
-  if(max_position==8){sevseg.setNumber(8);}
-  if(max_position==9){sevseg.setNumber(9);}
-
-
-  sevseg.refreshDisplay();
-
-  // the update process is now completed - update each of the necessary parameters / reset the triggers...
-  message_process_completed = 0;
-  bottom_read = -1;
-  top_read = -1;
-  left_read = -1;
-  right_read = -1;
-
-  bottom_message = 0;
-  top_message = 0;
-  left_message = 0;
-  right_message = 0;
-
-
-   ReadFromRightMessage[15] = {0};
-   ReadFromLeftMessage[15] = {0};
-   ReadFromTopMessage[15] = {0};
-   ReadFromBottomMessage[15] = {0};
-
-  update_num = update_num +1;
-
-
-  }
-
 }
